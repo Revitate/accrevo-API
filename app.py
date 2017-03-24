@@ -2,12 +2,14 @@
 from flask import Flask, jsonify, abort, make_response, request
 from flask_httpauth import HTTPBasicAuth
 from flask_sqlalchemy import SQLAlchemy
+from configDB import *
 import random
 
 app = Flask(__name__)
 
 #Database config
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost:3306/accdev'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://'+username+':'+password+'@'+host+'/'+databaseName
 db = SQLAlchemy(app)
 db.Model.metadata.reflect(db.engine)
 
@@ -93,6 +95,7 @@ def get_company(companyname):
 def get_new_companykey():
     company = Company.query.filter_by(name = request.args['company_name']).first_or_404()
     companykey = Companykey.query.filter_by(company_id = company.id).first()
+    #this gen new key function
     newKey = str(random.randint(1,10000000))
     if(companykey is None):
         companykey = Companykey(
